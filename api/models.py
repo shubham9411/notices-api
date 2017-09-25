@@ -10,4 +10,4 @@ class Api(models.Model):
 
 
 def __str__(self):
-	return '%s' %self.task_name
+	return '%s' %self.notice_name
