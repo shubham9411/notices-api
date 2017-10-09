@@ -26,7 +26,7 @@ class AuthRegister(APIView):
 
 	def post(self, request, format=None):
 		serializer = self.serializer_class(data=request.data)
-		if serializer.is_valid():
+		if serializer.is_valid(raise_exception=True):
 			serializer.save()
 			return Response(serializer.data,
 					status=status.HTTP_201_CREATED)
@@ -48,7 +48,7 @@ class AuthLogin(APIView):
 	def post(self, request, *args, **kwargs):
 		data = request.data
 		serializer = LoginSerializer(data=data)
-		if serializer.is_valid(raise_exception=Tru):
+		if serializer.is_valid(raise_exception=True):
 			new_data = serializer.data
 			return Response(new_data)
 		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
