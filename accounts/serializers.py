@@ -9,7 +9,6 @@ from django.core.exceptions import ObjectDoesNotExist
 
 class AccountSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True, required=True)
-	confirm_password = serializers.CharField(write_only=True, required=True)
 
 	token = serializers.CharField(max_length=255, read_only=True)
 
