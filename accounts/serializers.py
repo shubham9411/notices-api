@@ -38,16 +38,16 @@ class AccountSerializer(serializers.ModelSerializer):
 		instance.save()
 		return instance
 
-	def validate(self, data):
-		'''
-		Ensure the passwords are the same
-		'''
-		if data['password']:
-			if data['password'] != data['confirm_password']:
-				raise serializers.ValidationError(
-					"The passwords have to be the same"
-		)
-		return data
+	# def validate(self, data):
+	# 	'''
+	# 	Ensure the passwords are the same
+	# 	'''
+	# 	if data['password']:
+	# 		if data['password'] != data['confirm_password']:
+	# 			raise serializers.ValidationError(
+	# 				"The passwords have to be the same"
+	# 	)
+	# 	return data
 
 
 
