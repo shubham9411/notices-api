@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from django.http import Http404
 
@@ -47,7 +48,7 @@ class AuthLogin(APIView):
 	def post(self, request, *args, **kwargs):
 		data = request.data
 		serializer = LoginSerializer(data=data)
-		if serializer.is_valid(raise_exception=True):
+		if serializer.is_valid(raise_exception=Tru):
 			new_data = serializer.data
 			return Response(new_data)
 		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)

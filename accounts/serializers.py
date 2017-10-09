@@ -53,9 +53,10 @@ class AccountSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-	email = serializers.CharField(max_length=255)
+	email = serializers.CharField(max_length=255, required=True)
 	username = serializers.CharField(max_length=255, read_only=True)
-	password = serializers.CharField(max_length=128, write_only=True)
+	password = serializers.CharField(max_length=128, write_only=True, required=True,
+		error_messages={"required": "Password field may not be blank."})
 	token = serializers.CharField(max_length=255, read_only=True)
 
 	def validate(self, data):
@@ -66,25 +67,6 @@ class LoginSerializer(serializers.Serializer):
 		# our database.
 		email = data.get('email', None)
 		password = data.get('password', None)
-
-		# Raise an exception if an
-		# email is not provided.
-		if email is None:
-			raise serializers.ValidationError(
-				'An email address is required to log in.'
-			)
-
-		# Raise an exception if a
-		# password is not provided.
-		if password is None:
-			raise serializers.ValidationError(
-				'A password is required to log in.'
-			)
-
-		# The `authenticate` method is provided by Django and handles checking
-		# for a user that matches this email/password combination. Notice how
-		# we pass `email` as the `username` value since in our User
-		# model we set `USERNAME_FIELD` as `email`.
 		user = authenticate(username=email, password=password)
 
 		# If no user was found matching this email/password combination then
