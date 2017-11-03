@@ -70,6 +70,7 @@ class Account(AbstractBaseUser):
 		token = jwt.encode({
 		    'id': self.pk,
 		    'username': self.username,
+		    'is_admin': self.is_admin,
 		}, settings.SECRET_KEY, algorithm='HS256')
 
 		return token.decode('utf-8')
