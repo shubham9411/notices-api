@@ -6,7 +6,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from django.http import Http404
 
-from .serializers import AccountSerializer, LoginSerializer
+from .serializers import AccountSerializer, LoginSerializer, AdminRegisterSerializer
 from .models import Account
 
 # import jwt
@@ -49,6 +49,20 @@ class AuthLogin(APIView):
 		data = request.data
 		serializer = LoginSerializer(data=data)
 		if serializer.is_valid(raise_exception=True):
+			new_data = serializer.data
+			return Response(new_data)
+		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+class AdminRegister(APIView):
+
+	permission_classes = (AllowAny,)
+	serializer_class = AdminRegisterSerializer
+
+	def post(self, request, format=None):
+		data = request.data
+		serializer = AdminRegisterSerializer(data=data)
+		if serializer.is_valid(raise_exception=True):
+			serializer.save()
 			new_data = serializer.data
 			return Response(new_data)
 		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)

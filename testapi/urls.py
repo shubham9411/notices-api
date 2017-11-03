@@ -23,6 +23,7 @@ router.register(r'', ApiViewSet)
 
 urlpatterns = [
 	url(r'^api/v1/notices/', include(router.urls)),
+    url(r'^api/v1/', include('api.urls')),
 	url(r'^admin/', admin.site.urls),
 	url(r'^api/v1/auth/', include('accounts.urls'))
 ]
