@@ -52,8 +52,8 @@ class AccountSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-	email = serializers.CharField(max_length=255, required=True)
-	username = serializers.CharField(max_length=255, read_only=True)
+	email = serializers.CharField(max_length=255, read_only=True)
+	username = serializers.CharField(max_length=255, required=True)
 	password = serializers.CharField(max_length=128, write_only=True, required=True,
 		error_messages={"required": "Password field may not be blank."})
 	token = serializers.CharField(max_length=255, read_only=True)
@@ -64,9 +64,9 @@ class LoginSerializer(serializers.Serializer):
 		# user in, this means validating that they've provided an email
 		# and password and that this combination matches one of the users in
 		# our database.
-		email = data.get('email', None)
+		username = data.get('username', None)
 		password = data.get('password', None)
-		user = authenticate(username=email, password=password)
+		user = authenticate(username=username, password=password)
 
 		# If no user was found matching this email/password combination then
 		# `authenticate` will return `None`. Raise an exception in this case.
