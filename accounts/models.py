@@ -27,10 +27,13 @@ class AccountManager(BaseUserManager):
 		return account
 
 	def create_superuser(self, email, password=None, **kwargs):
-		account = self.create_user(email, password, kwargs)
+		account = self.create_user(email, password, **kwargs)
 		account.is_admin = True
 		account.save()
 		return account
+
+	def get_by_natural_key(self, username):
+		return self.get(username=username)
 
 
 class Account(AbstractBaseUser):
@@ -67,6 +70,7 @@ class Account(AbstractBaseUser):
 		token = jwt.encode({
 		    'id': self.pk,
 		    'username': self.username,
+		    'is_admin': self.is_admin,
 		}, settings.SECRET_KEY, algorithm='HS256')
 
 		return token.decode('utf-8')

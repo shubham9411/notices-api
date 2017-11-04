@@ -92,3 +92,17 @@ class LoginSerializer(serializers.Serializer):
 			'username': user.username,
 			'token': user.token
 		}
+
+class AdminRegisterSerializer(serializers.ModelSerializer):
+	password = serializers.CharField(write_only=True, required=True)
+
+	class Meta:
+		model = Account
+		fields = (
+		'id', 'email', 'username', 'date_created', 'date_modified',
+		'firstname', 'lastname', 'password', 'confirm_password', 'token' )
+		read_only_fields = ('date_created', 'date_modified')
+
+
+	def create(self, validated_data):
+		return Account.objects.create_superuser(**validated_data)
