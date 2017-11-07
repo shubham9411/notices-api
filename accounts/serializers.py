@@ -1,6 +1,6 @@
 from django.contrib.auth import update_session_auth_hash
 from rest_framework import serializers
-from .models import Account
+from .models import Account, Profile
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -106,3 +106,8 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
 
 	def create(self, validated_data):
 		return Account.objects.create_superuser(**validated_data)
+
+class ProfileSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Profile
+		fields = ('branch', 'year' ,'image')

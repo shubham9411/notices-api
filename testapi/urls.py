@@ -17,12 +17,9 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from api.views import ApiViewSet
 from django.contrib import admin
-router = routers.DefaultRouter()
-router.register(r'', ApiViewSet)
 
 
 urlpatterns = [
-	url(r'^api/v1/notices/', include(router.urls)),
     url(r'^api/v1/', include('api.urls')),
 	url(r'^admin/', admin.site.urls),
 	url(r'^api/v1/auth/', include('accounts.urls'))
