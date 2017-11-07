@@ -4,6 +4,7 @@ from django.contrib.auth.models import BaseUserManager
 from datetime import datetime, timedelta
 import jwt
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 class AccountManager(BaseUserManager):
 	def create_user(self, email, password=None, **kwargs):
@@ -27,17 +28,20 @@ class AccountManager(BaseUserManager):
 		return account
 
 	def create_superuser(self, email, password=None, **kwargs):
-		account = self.create_user(email, password, kwargs)
+		account = self.create_user(email, password, **kwargs)
 		account.is_admin = True
 		account.save()
 		return account
 
+	def get_by_natural_key(self, username):
+		return self.get(username=username)
+
 
 class Account(AbstractBaseUser):
+	fullname = models.CharField(max_length=100, blank=True)
 	username = models.CharField(unique=True, max_length=50)
 	email = models.EmailField(unique=True)
-	firstname = models.CharField(max_length=100, blank=True)
-	lastname = models.CharField(max_length=100, blank=True)
+	phonenumber = models.IntegerField(null=True)
 	date_created = models.DateTimeField(auto_now_add=True)
 	date_modified = models.DateTimeField(auto_now=True)
 	is_admin = models.BooleanField(default=False)
@@ -61,14 +65,26 @@ class Account(AbstractBaseUser):
 		Generates a JSON Web Token that stores this user's ID and has an expiry
 		date set to 60 days into the future.
 		"""
-		dt = datetime.utcnow()+ timedelta(days=60)
+		dt = datetime.utcnow()+ timedelta(days=30)
 
 		token = jwt.encode({
 		    'id': self.pk,
 		    'username': self.username,
+		    'is_admin': self.is_admin,
+		    'exp': dt
 		}, settings.SECRET_KEY, algorithm='HS256')
 
 		return token.decode('utf-8')
 
-
+class Profile(models.Model):
+	User = get_user_model()
+	branch = models.CharField(max_length=20, null=True)
+	year = models.IntegerField(null=True)
+	image = models.ImageField(upload_to="accounts/images/", null=True, blank=True)
+	user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=False,
+        null=True
+    )
 

@@ -1,6 +1,6 @@
 from django.contrib.auth import update_session_auth_hash
 from rest_framework import serializers
-from .models import Account
+from .models import Account, Profile
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -9,7 +9,6 @@ from django.core.exceptions import ObjectDoesNotExist
 
 class AccountSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True, required=True)
-	confirm_password = serializers.CharField(write_only=True, required=True)
 
 	token = serializers.CharField(max_length=255, read_only=True)
 
@@ -38,24 +37,25 @@ class AccountSerializer(serializers.ModelSerializer):
 		instance.save()
 		return instance
 
-	def validate(self, data):
-		'''
-		Ensure the passwords are the same
-		'''
-		if data['password']:
-			if data['password'] != data['confirm_password']:
-				raise serializers.ValidationError(
-					"The passwords have to be the same"
-		)
-		return data
+	# def validate(self, data):
+	# 	'''
+	# 	Ensure the passwords are the same
+	# 	'''
+	# 	if data['password']:
+	# 		if data['password'] != data['confirm_password']:
+	# 			raise serializers.ValidationError(
+	# 				"The passwords have to be the same"
+	# 	)
+	# 	return data
 
 
 
 
 class LoginSerializer(serializers.Serializer):
-	email = serializers.CharField(max_length=255)
-	username = serializers.CharField(max_length=255, read_only=True)
-	password = serializers.CharField(max_length=128, write_only=True)
+	email = serializers.CharField(max_length=255, read_only=True)
+	username = serializers.CharField(max_length=255, required=True)
+	password = serializers.CharField(max_length=128, write_only=True, required=True,
+		error_messages={"required": "Password field may not be blank."})
 	token = serializers.CharField(max_length=255, read_only=True)
 
 	def validate(self, data):
@@ -64,28 +64,9 @@ class LoginSerializer(serializers.Serializer):
 		# user in, this means validating that they've provided an email
 		# and password and that this combination matches one of the users in
 		# our database.
-		email = data.get('email', None)
+		username = data.get('username', None)
 		password = data.get('password', None)
-
-		# Raise an exception if an
-		# email is not provided.
-		if email is None:
-			raise serializers.ValidationError(
-				'An email address is required to log in.'
-			)
-
-		# Raise an exception if a
-		# password is not provided.
-		if password is None:
-			raise serializers.ValidationError(
-				'A password is required to log in.'
-			)
-
-		# The `authenticate` method is provided by Django and handles checking
-		# for a user that matches this email/password combination. Notice how
-		# we pass `email` as the `username` value since in our User
-		# model we set `USERNAME_FIELD` as `email`.
-		user = authenticate(username=email, password=password)
+		user = authenticate(username=username, password=password)
 
 		# If no user was found matching this email/password combination then
 		# `authenticate` will return `None`. Raise an exception in this case.
@@ -111,3 +92,22 @@ class LoginSerializer(serializers.Serializer):
 			'username': user.username,
 			'token': user.token
 		}
+
+class AdminRegisterSerializer(serializers.ModelSerializer):
+	password = serializers.CharField(write_only=True, required=True)
+
+	class Meta:
+		model = Account
+		fields = (
+		'id', 'email', 'username', 'date_created', 'date_modified',
+		'firstname', 'lastname', 'password', 'confirm_password', 'token' )
+		read_only_fields = ('date_created', 'date_modified')
+
+
+	def create(self, validated_data):
+		return Account.objects.create_superuser(**validated_data)
+
+class ProfileSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Profile
+		fields = ('branch', 'year' ,'image')

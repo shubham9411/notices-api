@@ -1,12 +1,14 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from django.http import Http404
 
-from .serializers import AccountSerializer, LoginSerializer
-from .models import Account
+from .serializers import (AccountSerializer, LoginSerializer, AdminRegisterSerializer,
+	ProfileSerializer)
+from .models import Account, Profile
 
 # import jwt
 # from rest_framework_jwt.utils import jwt_payload_handler
@@ -25,7 +27,7 @@ class AuthRegister(APIView):
 
 	def post(self, request, format=None):
 		serializer = self.serializer_class(data=request.data)
-		if serializer.is_valid():
+		if serializer.is_valid(raise_exception=True):
 			serializer.save()
 			return Response(serializer.data,
 					status=status.HTTP_201_CREATED)
@@ -51,3 +53,38 @@ class AuthLogin(APIView):
 			new_data = serializer.data
 			return Response(new_data)
 		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+class AdminRegister(APIView):
+
+	permission_classes = (AllowAny,)
+	serializer_class = AdminRegisterSerializer
+
+	def post(self, request, format=None):
+		data = request.data
+		serializer = AdminRegisterSerializer(data=data)
+		if serializer.is_valid(raise_exception=True):
+			serializer.save()
+			new_data = serializer.data
+			return Response(new_data)
+		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+class ProfileView(APIView):
+
+	permission_classes = (IsAuthenticated,)
+	serializer_class = ProfileSerializer
+	queryset = Profile.objects.all()
+
+	def post(self, request, format=None):
+		current_user = request.user
+		param = request.data
+		profile = Profile.objects.filter(user=current_user.pk)
+		if profile:
+			serializer = ProfileSerializer(profile, many=True)
+			return Response(serializer.data)
+		else:
+			serializer = ProfileSerializer(data=param)
+			if serializer.is_valid(raise_exception=True):
+				serializer.save(user=current_user)
+				new_data = serializer.data
+				return Response(new_data)
+			return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)

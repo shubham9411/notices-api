@@ -62,11 +62,13 @@ AUTH_USER_MODEL = 'accounts.Account'
 #Restframework permissions
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.TokenAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES':(
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-        )
+        ),
+    'EXCEPTION_HANDLER': 'accounts.utils.custom_exception_handler'
 }
 
 
